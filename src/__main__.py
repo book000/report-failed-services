@@ -1,3 +1,4 @@
+import socket
 import subprocess
 from datetime import datetime, timezone
 
@@ -48,9 +49,12 @@ if __name__ == "__main__":
             "fields": [
                 {
                     "name": "journal",
-                    "value": "```" + service_status + "```"
+                    "value": "```" + service_status if len(service_status) < 1000 else service_status[:1000] + "```"
                 }
             ],
+            "author": {
+                "name": socket.gethostname()
+            },
             "color": 0xff0000,
             "timestamp": datetime.now(timezone.utc).isoformat(),
         })
