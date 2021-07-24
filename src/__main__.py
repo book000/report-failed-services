@@ -18,15 +18,15 @@ if __name__ == "__main__":
 
     for row in rows:
         cols = row.split(" ")
-        service_name = cols[0]
+        service_name = cols[0].strip()
         is_loaded = cols[1] == "loaded"
-        status = cols[2]
-        sub_status = cols[3]
-        description = " ".join(cols[4:])
+        status = cols[2].strip()
+        sub_status = cols[3].strip()
+        description = " ".join(cols[4:]).strip()
 
         print("service_name", service_name)
 
-        if service_name in not_faileds:
+        while service_name in not_faileds:
             not_faileds.remove(service_name)
 
         if service_name in ignore_services:
@@ -45,15 +45,15 @@ if __name__ == "__main__":
 
         send_to_discord(config.DISCORD_TOKEN, config.DISCORD_CHANNEL_ID, "", {
             "title": service_name,
-            "description": description,
+            "description": "`" + description + "`",
             "fields": [
                 {
                     "name": "journal",
                     "value": "```" + (service_status if len(service_status) < 1000 else service_status[:1000]) + "```"
                 }
             ],
-            "author": {
-                "name": socket.gethostname()
+            "footer": {
+                "text": socket.gethostname()
             },
             "color": 0xff0000,
             "timestamp": datetime.now(timezone.utc).isoformat(),
