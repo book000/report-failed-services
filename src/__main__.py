@@ -49,7 +49,7 @@ if __name__ == "__main__":
             "fields": [
                 {
                     "name": "journal",
-                    "value": "```" + service_status if len(service_status) < 1000 else service_status[:1000] + "```"
+                    "value": "```" + (service_status if len(service_status) < 1000 else service_status[:1000]) + "```"
                 }
             ],
             "author": {
