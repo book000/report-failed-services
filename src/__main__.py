@@ -14,7 +14,7 @@ if __name__ == "__main__":
 
     ignore_services = get_ignore_services()
     notified_ids = load_notified_ids()
-    not_faileds = notified_ids
+    not_faileds = load_notified_ids()
 
     for row in rows:
         cols = row.split(" ")
