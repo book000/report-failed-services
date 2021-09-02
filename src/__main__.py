@@ -62,4 +62,12 @@ if __name__ == "__main__":
 
     for not_failed in not_faileds:
         print("not_failed", not_failed)
+        send_to_discord(config.DISCORD_TOKEN, config.DISCORD_CHANNEL_ID, "", {
+            "title": not_failed,
+            "footer": {
+                "text": socket.gethostname()
+            },
+            "color": 0x00ff00,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+        })
         remove_notified_id(not_failed)
