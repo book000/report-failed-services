@@ -15,7 +15,15 @@
 - 日本語と英数字の間には半角スペースを入れる。
 
 ## プロジェクト概要
-- 目的: Notifies Discord of services whose status is Failed. It also notifies the services that operated normally after Failed.
+サービスの失敗状態を監視し、Discord に通知するツール。失敗したサービスと復旧したサービスの状態を報告します。
+
+### 技術スタック
+- **言語**: Python 3.6+
+- **フレームワーク**: None (CLI tool)
+- **パッケージマネージャー**: pip
+- **主要な依存関係**:
+  - python-dotenv 1.2.1
+  - requests 2.32.5
 
 ## コーディング規約
 - フォーマット: 既存設定（ESLint / Prettier / formatter）に従う。
@@ -23,12 +31,11 @@
 - コメント言語: 日本語
 - エラーメッセージ: 英語
 
-## 開発コマンド
+### 開発コマンド
 ```bash
-# 依存関係のインストール
-pip install -r requirements.txt
+# install
+pip3 install -U -r requirements.txt
 
-# 開発 / テスト / Lint は README を確認してください
 ```
 
 ## 注意事項
@@ -37,3 +44,7 @@ pip install -r requirements.txt
 - 既存のプロジェクトルールがある場合はそれを優先する。
 
 ## リポジトリ固有
+- Discord bot 統合
+- systemd サービス統合
+- 環境変数ベース設定(.env)
+- サービス状態監視
