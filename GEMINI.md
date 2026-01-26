@@ -15,7 +15,7 @@
 
 ## プロジェクト概要
 - **目的**: Systemd の Failed サービス検知・Discord 通知
-- **主要技術**: Python 3.x, Systemd (`systemctl`), Discord Webhook
+- **主要技術**: Python 3.x, Systemd (`systemctl`), Discord Bot API
 
 ## コーディング規約
 - **フォーマット**: `flake8` 準拠

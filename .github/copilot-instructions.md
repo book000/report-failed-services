@@ -4,7 +4,7 @@
 - 目的: ステータスが Failed となった systemd サービスを Discord に通知する
 - 主な機能:
   - `systemctl` コマンドで Failed 状態のサービスを検知
-  - Discord Webhook を使用して通知
+  - Discord Bot API を使用して通知
   - Failed から復帰したサービスの通知
 - 対象ユーザー: Linux サーバー管理者
 
@@ -42,7 +42,7 @@ python3 -m src
 
 ## セキュリティ / 機密情報
 - `DISCORD_TOKEN` などの認証情報は `.env` ファイルで管理し、絶対にコミットしない。
-- ログに Webhook URL やトークンを出力しない。
+- ログにトークンやチャンネル ID を出力しない。
 
 ## リポジトリ固有
 - Systemd の状態に依存するため、Linux 環境 (Systemd 使用) での動作が前提。
