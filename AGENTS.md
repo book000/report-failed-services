@@ -17,12 +17,13 @@ Guidance for AI coding agents and contributors. `CLAUDE.md` imports this file, a
 
 ```bash
 pip install -U -r requirements.txt   # install dependencies
+python3 -m pip install -r requirements-dev.txt   # install test dependencies
 python3 -m src                        # run locally (needs .env, systemctl and journalctl)
 flake8 . --count --select=E1,E2,E3,E4,E7,E9,W1,W2,W3,W4,W5,F63,F7,F82 --show-source --statistics
-python3 -m unittest discover -s tests   # run the unit tests (standard library only, no network)
+python3 -m pytest                     # run all tests without systemd or Discord access
 ```
 
-CI (`.github/workflows/ci.yml`) only runs the `flake8` command above and does not run the tests. `tests/` holds standard-library `unittest` tests for the Discord request timeout; verify the rest of the behavior manually on a systemd host.
+CI (`.github/workflows/ci.yml`) only runs the `flake8` command above and does not run the tests. `tests/` covers Discord request timeouts and retries, service failure isolation, and notification state handling. Run `pytest` locally; real systemd and Discord integration still needs manual verification.
 
 ## Structure
 
@@ -30,7 +31,7 @@ CI (`.github/workflows/ci.yml`) only runs the `flake8` command above and does no
 - `src/__init__.py`: shared helpers (`init_logger`, `send_to_discord`, notified-ID and ignore-list file access). `send_to_discord` passes the `DISCORD_TIMEOUT` constant (connect 5 s, read 15 s) to every `requests.post` call.
 - `src/config.py`: loads `.env` and exposes `DISCORD_TOKEN` and `DISCORD_CHANNEL_ID`; exits if either is missing.
 - `SystemdFiles/`: service and timer units plus `install-systemd.sh`, which rewrites the tracked `.service` file in place (do not commit that change). The service runs `venv/bin/python -m src` as root, so the installation needs a `venv` in the repository root. The service sets `TimeoutStartSec=600` so a stalled run cannot block the 30-minute timer.
-- `tests/`: `unittest` tests (run with the command above). `import src` creates `logs/` in the working directory, so run them from the repository root.
+- `tests/`: `pytest` tests and the existing `unittest` suite, collected with `pytest.ini`. `import src` creates `logs/` in the working directory, so run them from the repository root.
 
 ## State and configuration
 

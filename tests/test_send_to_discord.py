@@ -9,6 +9,7 @@ from src import send_to_discord
 class SendToDiscordTimeoutTest(unittest.TestCase):
     @mock.patch("src.requests.post")
     def test_json_branch_passes_timeout(self, post):
+        post.return_value.status_code = 200
         send_to_discord("token", "1", "message")
 
         post.assert_called_once()
@@ -16,6 +17,7 @@ class SendToDiscordTimeoutTest(unittest.TestCase):
 
     @mock.patch("src.requests.post")
     def test_files_branch_passes_timeout(self, post):
+        post.return_value.status_code = 200
         send_to_discord("token", "1", "message", files={"file": b"x"})
 
         post.assert_called_once()

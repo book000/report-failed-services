@@ -21,12 +21,22 @@ The service runs `venv/bin/python -m src` as root, so the virtual environment fr
 The timer runs it every 30 minutes (at minutes 00 and 30).
 
 Each Discord request times out after 5 seconds to connect or 15 seconds without a response, and systemd stops a run that takes longer than 10 minutes (`TimeoutStartSec=600`), so a stalled request cannot block later timer runs.
-A notification that fails this way is retried on the next run.
+Each service is processed independently: a journal-read or notification failure leaves that notification pending and processing continues with later failures and recoveries. Failed sends do not add failure state or remove recovery state. If any service remains unsuccessful, the run logs a summary and exits with status 1; a fully successful run exits with status 0.
+
+Discord HTTP 429 and 5xx responses are retried up to three total attempts per notification, with at most 30 seconds of retry waiting per notification. For 429 responses, the tool honors Discord's `Retry-After` header and JSON `retry_after` value, including fractional seconds, and carries the cooldown into subsequent notifications. If the required wait exceeds the budget, it defers the notification without retrying early. Server errors use exponential backoff (1 then 2 seconds). Permanent HTTP rejections and transport errors are left for the next timer run; transport errors are not immediately retried because delivery may already have occurred.
+
 After updating an existing installation, run `bash SystemdFiles/install-systemd.sh` again (or copy the unit file to `/etc/systemd/system/` and run `systemctl daemon-reload`) to apply the runtime limit.
 
 To run it manually from the repository root: `python3 -m src`
 
-To run the tests from the repository root: `python3 -m unittest discover -s tests`
+To install development dependencies and run the tests from the repository root:
+
+```bash
+python3 -m pip install -r requirements-dev.txt
+python3 -m pytest
+```
+
+The tests simulate systemd and Discord responses and use temporary state files; they do not require a systemd host or Discord credentials. CI currently runs only flake8.
 
 ## Configuration
 
