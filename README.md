@@ -52,7 +52,10 @@ Optional file, read from the working directory (the systemd unit uses the reposi
 The tool creates the following files at runtime:
 
 - `notified_ids.json`: a JSON array of service names already notified as Failed. It is used to avoid duplicate notifications and to detect recovery.
+- `notified_ids.json.lock` and `notified_ids.run.lock`: lock files that serialize state updates and overlapping runs. Keep these files in place while the tool is running.
 - `logs/`: daily log files. Old files may accumulate.
+
+State updates are written to a temporary file and atomically replaced. If `notified_ids.json` is invalid or is not an array of strings, the tool stops without changing it. Restore a valid copy from backup before retrying; if none is available, inspect and repair the file manually. Resetting it to `[]` loses recovery tracking and can repeat failure notifications.
 
 ## Warning / Disclaimer
 

@@ -3,10 +3,15 @@ import subprocess
 import sys
 from datetime import datetime, timezone
 
-from src import add_notified_id, config, get_ignore_services, load_notified_ids, logger, remove_notified_id, send_to_discord
+from src import add_notified_id, config, get_ignore_services, load_notified_ids, logger, remove_notified_id, send_to_discord, state_lock
 
 
 def main() -> int:
+    with state_lock("notified_ids.run.lock"):
+        return _run()
+
+
+def _run() -> int:
     unsuccessful = 0
     result: str = subprocess.check_output("/usr/bin/systemctl list-units -t service --failed --full --all --no-legend --plain", shell=True, universal_newlines=True)
 

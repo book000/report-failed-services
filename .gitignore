@@ -3,3 +3,7 @@ venv
 .env
 logs/
 notified_ids.json
+
+notified_ids.json.lock
+notified_ids.run.lock
+.notified_ids.*

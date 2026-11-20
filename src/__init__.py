@@ -1,9 +1,12 @@
 import datetime
+import fcntl
 import json
 import logging
 import math
 import os
 import time
+import tempfile
+from contextlib import contextmanager
 from logging.handlers import TimedRotatingFileHandler
 import requests
 
@@ -113,32 +116,69 @@ def send_to_discord(token, channelId, message, embed=None, files=None):
             waited += delay
 
 
-def load_notified_ids() -> list:
-    logger.debug("load_notified_ids()")
-    notified_ids = []
-    if os.path.exists("notified_ids.json"):
-        with open("notified_ids.json", "r") as f:
+@contextmanager
+def state_lock(path="notified_ids.json.lock"):
+    with open(path, "a") as lock_file:
+        fcntl.flock(lock_file, fcntl.LOCK_EX)
+        try:
+            yield
+        finally:
+            fcntl.flock(lock_file, fcntl.LOCK_UN)
+
+
+def _load_notified_ids():
+    try:
+        with open("notified_ids.json", "r", encoding="utf-8") as f:
             notified_ids = json.load(f)
+    except FileNotFoundError:
+        return []
+    except (ValueError, UnicodeDecodeError) as error:
+        raise ValueError("Invalid notified_ids.json; restore a valid state file before retrying.") from error
+    if not isinstance(notified_ids, list) or not all(isinstance(item, str) for item in notified_ids):
+        raise ValueError("Invalid notified_ids.json; restore a valid state file before retrying.")
     return notified_ids
 
 
+def load_notified_ids() -> list:
+    with state_lock():
+        return _load_notified_ids()
+
+
+def _save_notified_ids(notified_ids):
+    if not isinstance(notified_ids, list) or not all(isinstance(item, str) for item in notified_ids):
+        raise ValueError("Notification state must be a list of service names.")
+    temp_path = None
+    try:
+        with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=".", prefix=".notified_ids.", delete=False) as f:
+            temp_path = f.name
+            json.dump(notified_ids, f)
+            f.flush()
+            os.fsync(f.fileno())
+        os.replace(temp_path, "notified_ids.json")
+    finally:
+        if temp_path is not None and os.path.exists(temp_path):
+            os.unlink(temp_path)
+
+
 def add_notified_id(notified_id):
-    notified_ids = load_notified_ids()
-    notified_ids.append(notified_id)
-    save_notified_ids(notified_ids)
+    with state_lock():
+        notified_ids = _load_notified_ids()
+        if notified_id not in notified_ids:
+            notified_ids.append(notified_id)
+            _save_notified_ids(notified_ids)
 
 
 def remove_notified_id(notified_id):
-    notified_ids = load_notified_ids()
-    if notified_id in notified_ids:
-        notified_ids.remove(notified_id)
-    save_notified_ids(notified_ids)
+    with state_lock():
+        notified_ids = _load_notified_ids()
+        if notified_id in notified_ids:
+            notified_ids.remove(notified_id)
+            _save_notified_ids(notified_ids)
 
 
 def save_notified_ids(notified_ids: list):
-    logger.debug("save_notified_ids()")
-    with open("notified_ids.json", "w") as f:
-        f.write(json.dumps(notified_ids))
+    with state_lock():
+        _save_notified_ids(notified_ids)
 
 
 def get_ignore_services() -> list:
