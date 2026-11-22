@@ -5,7 +5,7 @@ Notifies a Discord channel of systemd services in the Failed state. It also send
 ## Requirements
 
 - Linux with systemd (`systemctl` and `journalctl`)
-- Python 3.6+
+- Python 3.10+
 - Dependencies in [requirements.txt](requirements.txt): `python-dotenv`, `requests`
 - A Discord Bot token and the ID of the channel the bot posts to
 
@@ -36,7 +36,7 @@ python3 -m pip install -r requirements-dev.txt
 python3 -m pytest
 ```
 
-The tests simulate systemd and Discord responses and use temporary state files; they do not require a systemd host or Discord credentials. CI currently runs only flake8.
+The tests simulate systemd and Discord responses and use temporary state files; they do not require a systemd host or Discord credentials. CI runs flake8 on the latest Python and tests on Python 3.10.
 
 ## Configuration
 
