@@ -16,7 +16,7 @@ Notifies a Discord channel of systemd services in the Failed state. It also send
 3. Create the configuration file `.env` (see Configuration below).
 4. Register the systemd unit and timer: `bash SystemdFiles/install-systemd.sh`
 
-The installer rewrites `SystemdFiles/report-failed-services.service` in place with the repository path (do not commit that change; to move the repository, restore the file with `git checkout` and run the installer again), copies the service and timer files to `/etc/systemd/system/` with `sudo`, then enables and starts the timer.
+The installer renders the service with the repository path, copies the service and timer files to `/etc/systemd/system/` with `sudo`, reloads systemd, then enables and starts the timer. Run it again after moving the repository.
 The service runs `venv/bin/python -m src` as root, so the virtual environment from step 2 is required.
 The timer runs it every 30 minutes (at minutes 00 and 30).
 

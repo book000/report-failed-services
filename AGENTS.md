@@ -30,7 +30,7 @@ CI (`.github/workflows/ci.yml`) runs the `flake8` command above on the latest Py
 - `src/__main__.py`: main logic. Runs `systemctl list-units --failed`, skips ignored and already notified services, sends a failure embed, and sends a recovery embed for notified services that are no longer failed.
 - `src/__init__.py`: shared helpers (`init_logger`, `send_to_discord`, notified-ID and ignore-list file access). `send_to_discord` passes the `DISCORD_TIMEOUT` constant (connect 5 s, read 15 s) to every `requests.post` call.
 - `src/config.py`: loads `.env` and exposes `DISCORD_TOKEN` and `DISCORD_CHANNEL_ID`; exits if either is missing.
-- `SystemdFiles/`: service and timer units plus `install-systemd.sh`, which rewrites the tracked `.service` file in place (do not commit that change). The service runs `venv/bin/python -m src` as root, so the installation needs a `venv` in the repository root. The service sets `TimeoutStartSec=600` so a stalled run cannot block the 30-minute timer.
+- `SystemdFiles/`: service and timer units plus `install-systemd.sh`, which renders the `.service` file in a temporary directory. The service runs `venv/bin/python -m src` as root, so the installation needs a `venv` in the repository root. The service sets `TimeoutStartSec=600` so a stalled run cannot block the 30-minute timer.
 - `tests/`: `pytest` tests and the existing `unittest` suite, collected with `pytest.ini`. `import src` creates `logs/` in the working directory, so run them from the repository root.
 
 ## State and configuration
