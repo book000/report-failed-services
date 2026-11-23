@@ -16,6 +16,8 @@ Write review comments in English. Deliverables (commits, PRs, code comments, doc
 - Changes to `notified_ids.json` handling do not cause duplicate or missing notifications.
 - A service's journal or notification failure does not prevent later failure and recovery checks, unsuccessful notifications remain pending, and the process returns a nonzero result when work remains unsuccessful.
 - Discord retries are bounded and honor rate-limit responses.
+- Journal content is omitted by default without reading the journal; allowlist matching uses exact unit names.
+- Enabled journal content is redacted before truncation, and documentation does not promise complete removal of private data.
 - `README.md` and `AGENTS.md` still match the code.
 
 ## Known false positives (do not flag)

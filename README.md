@@ -44,6 +44,21 @@ Settings are read from `.env` in the repository root (python-dotenv searches upw
 
 - `DISCORD_TOKEN`: Discord Bot token
 - `DISCORD_CHANNEL_ID`: ID of the channel to send notifications to
+- `JOURNAL_MODE` (optional, default `omit`): `omit` never reads or sends journal content; `allowlist` includes it only for services in `JOURNAL_SERVICES`; `all` includes it for every newly failed service.
+- `JOURNAL_SERVICES` (optional, default `[]`): a JSON array of exact, case-sensitive unit names, used only in `allowlist` mode. Wildcards and partial names do not match. Invalid journal settings stop the run before notifications or state updates.
+
+Journal content is omitted by default, including after upgrading an existing installation. Failure and recovery notifications still include the service name and hostname; failure notifications also include the service description. To share diagnostics for selected services, add these settings to `.env`:
+
+```dotenv
+JOURNAL_MODE=allowlist
+JOURNAL_SERVICES='["example.service", "worker@instance.service"]'
+```
+
+An empty allowlist includes no journal content. Set `JOURNAL_MODE=all` explicitly to enable journal forwarding for all failed services, or `JOURNAL_MODE=omit` to disable it. Ignored and already notified services are not read. The policy does not resend notifications for services already recorded in `notified_ids.json`.
+
+When enabled, the last ten journal lines are processed before limiting the excerpt to 1,000 characters. Each line containing a common credential assignment (token, password, passwd, pwd, secret, API key, authorization, cookie, or connection string), a Bearer credential, a URL with user information, or the configured Discord Bot token is replaced with `[REDACTED]`. This deliberately removes the entire matching line and can remove harmless diagnostics too. Pattern matching cannot cover every secret format, multiline secret, connection string, or private request payload. Use omission or a narrow allowlist as the primary privacy control.
+
+The systemd service runs as root and can read journals containing private application data. Enabling journal forwarding shares that data with Discord and anyone who can access the channel. Review the selected services' logging, channel membership, bot permissions, and retention practices before enabling it; redaction is no guarantee that the remaining text is safe to share. Service names, descriptions, and hostnames are still shared when journals are omitted, and are outside the journal redaction policy.
 
 Optional file, read from the working directory (the systemd unit uses the repository root):
 

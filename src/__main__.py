@@ -4,6 +4,7 @@ import sys
 from datetime import datetime, timezone
 
 from src import add_notified_id, config, get_ignore_services, load_notified_ids, logger, remove_notified_id, send_to_discord, state_lock
+from src.journal import redact_journal
 
 
 def main() -> int:
@@ -50,25 +51,23 @@ def _run() -> int:
         print("description", description)
 
         try:
-            service_status = subprocess.check_output(
-                ["/usr/bin/journalctl", "-u", service_name, "-n", "10", "-l", "--no-pager"],
-                universal_newlines=True)
-
-            send_to_discord(config.DISCORD_TOKEN, config.DISCORD_CHANNEL_ID, "", {
+            embed = {
                 "title": service_name,
                 "description": "`" + description + "`",
-                "fields": [
-                    {
-                        "name": "journal",
-                        "value": "```" + (service_status if len(service_status) < 1000 else service_status[:1000]) + "```"
-                    }
-                ],
                 "footer": {
                     "text": socket.gethostname()
                 },
                 "color": 0xff0000,
                 "timestamp": datetime.now(timezone.utc).isoformat(),
-            })
+            }
+            if config.JOURNAL_MODE == "all" or (config.JOURNAL_MODE == "allowlist" and service_name in config.JOURNAL_SERVICES):
+                service_status = subprocess.check_output(
+                    ["/usr/bin/journalctl", "-u", service_name, "-n", "10", "-l", "--no-pager"],
+                    universal_newlines=True)
+                service_status = redact_journal(service_status, config.DISCORD_TOKEN)
+                embed["fields"] = [{"name": "journal", "value": "```" + service_status[:1000] + "```"}]
+
+            send_to_discord(config.DISCORD_TOKEN, config.DISCORD_CHANNEL_ID, "", embed)
             add_notified_id(service_name)
 
         except Exception as error:

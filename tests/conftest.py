@@ -27,8 +27,13 @@ def application(monkeypatch, tmp_path, clock):
     with mock.patch("dotenv.load_dotenv"), mock.patch.dict("os.environ", {
         "DISCORD_TOKEN": "test-token",
         "DISCORD_CHANNEL_ID": "test-channel",
+        "JOURNAL_MODE": "omit",
+        "JOURNAL_SERVICES": "[]",
     }):
-        return importlib.import_module("src.__main__")
+        app = importlib.import_module("src.__main__")
+    monkeypatch.setattr(app.config, "JOURNAL_MODE", "all")
+    monkeypatch.setattr(app.config, "JOURNAL_SERVICES", frozenset())
+    return app
 
 
 @pytest.fixture
