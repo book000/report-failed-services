@@ -26,8 +26,8 @@ jobs:
           python -m pip install pip==26.3
           python -m pip install flake8==7.5.0
 
-      - name: Setup flake8 annotations
-        uses: rbialon/flake8-annotations@c822b3bceb49cc612560c35bd3b731b6c826ef53
+      - name: Set up flake8 annotations
+        run: echo "::add-matcher::.github/flake8-problem-matcher.json"
 
       - name: Lint with flake8
         run: |
