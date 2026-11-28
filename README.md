@@ -36,7 +36,7 @@ python3 -m pip install -r requirements-dev.txt
 python3 -m pytest
 ```
 
-The tests simulate systemd and Discord responses and use temporary state files; they do not require a systemd host or Discord credentials. CI runs flake8 on the latest Python and tests on Python 3.10.
+The tests simulate systemd and Discord responses and use temporary state files; they do not require a systemd host or Discord credentials. CI runs flake8 on the latest Python and installs the pinned runtime and test dependencies and runs tests on Python 3.10 and 3.15.
 
 ## Configuration
 

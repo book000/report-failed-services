@@ -9,7 +9,7 @@ Write review comments in English. Deliverables (commits, PRs, code comments, doc
 ## Review checklist
 
 - `flake8` (the command in `.github/workflows/ci.yml`) passes.
-- `python3 -m pytest` passes after installing `requirements-dev.txt`; CI runs the tests on Python 3.10.
+- `python3 -m pytest` passes after installing `requirements-dev.txt`; CI runs the tests on Python 3.10 and 3.15.
 - Commit messages and PR titles follow Conventional Commits.
 - No secrets are hard-coded or logged (`DISCORD_TOKEN`, channel ID).
 - Failures of `systemctl` and Discord API calls are not silently swallowed.
